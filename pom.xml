@@ -115,7 +115,6 @@
 		<repository>
 			<id>settings_central</id>
 			<name>settings_central</name>
-			<!-- <url>http://10.191.9.13:8080/nexus/content/groups/public/</url> -->
 			<url>http://central.maven.org/maven2/</url>
 		</repository>
 	</repositories>
