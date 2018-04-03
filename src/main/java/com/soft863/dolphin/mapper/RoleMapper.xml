@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.soft863.dolphin.mapper.RoleMapper">
+	<resultMap id="BaseResultMap" type="com.soft863.dolphin.model.Role">
+		<id column="ROLE_ID" property="roleId" />
+		<result column="NAME" property="name"/>
+		<result column="DESCRIPTION" property="description" />
+		<result column="ORDERING" property="ordering"/>
+		<result column="INS_YMDHMS" property="insYmdhms"/>
+		<result column="INS_ID" property="insId"/>
+		<result column="UPD_EAC" property="updEac"/>
+		<result column="UPD_YMDHMS" property="updYmdhms"/>
+		<result column="UPD_ID" property="updId"/>
+		<result column="DEL_FLAG" property="delFlag"/>
+		<association column="ROLE_ID" property="permissions" select="selectPermission" />
+	</resultMap>
+	<!-- 表字段列表 -->
+	<sql id="Base_Column_List" >
+		ROLE_ID,NAME,DESCRIPTION,ORDERING,INS_YMDHMS,INS_ID,UPD_EAC,UPD_YMDHMS,UPD_ID,DEL_FLAG
+  	</sql>
+  	<!-- 检索条件 -->
+  	<sql id="searchWhere">
+	    <where>
+	    	<!-- 部门表的模糊查询条件 -->
+		    <if test="roleId!=null and roleId!=''">
+		        and ROLE_ID = '${roleId}'
+		    </if>
+		    <if test="name!=null and name!=''">
+		        and NAME like '${name}%'
+		    </if>
+	    </where>
+  	</sql>
+  	<select id="selectRoleById" parameterType="java.lang.Long" resultMap="BaseResultMap">
+		SELECT 
+			<include refid="Base_Column_List" />
+		FROM security_role
+		WHERE ROLE_ID = #{roleId}
+	</select>
+	
+	<select id="selectRoleList" parameterType="com.soft863.dolphin.model.Role" resultMap="BaseResultMap">
+		SELECT 
+			<include refid="Base_Column_List" />
+		FROM security_role
+		<include refid="searchWhere"/>
+		<if test="pageFlag==1">
+		    LIMIT #{lowNum}, #{highNum}
+		</if>
+	</select>
+	
+	<select id="selectCount" parameterType="com.soft863.dolphin.model.Role" resultType="java.lang.Long">
+		SELECT 
+			count(*)
+		FROM security_role
+		<include refid="searchWhere"/>
+	</select>
+	
+	<insert id="insert" useGeneratedKeys="true" keyProperty="roleId" parameterType="com.soft863.dolphin.model.Role">
+  		INSERT INTO security_role
+  		(
+  			ROLE_ID, 
+			NAME,
+			DESCRIPTION,
+			ORDERING,
+			INS_YMDHMS, 
+			INS_ID,
+			UPD_EAC,
+			UPD_YMDHMS,
+			UPD_ID,
+			DEL_FLAG
+		)
+  		VALUES(
+  			#{roleId,jdbcType=BIGINT},
+  			#{name,jdbcType=VARCHAR},
+  			#{description,jdbcType=VARCHAR},
+  			#{ordering,jdbcType=BIGINT},
+  			#{insYmdhms,jdbcType=DATE},
+  			#{insId,jdbcType=BIGINT},
+  			#{updEac,jdbcType=BIGINT},
+  			#{updYmdhms,jdbcType=DATE},
+  			#{updId,jdbcType=BIGINT},
+  			#{delFlag,jdbcType=CHAR}
+  		)
+  	</insert>
+  	
+    <delete id="delete" parameterType="java.lang.Long">
+		DELETE FROM security_role WHERE ROLE_ID = #{roleId}
+	</delete>
+	
+	<update id="update" parameterType="com.soft863.dolphin.model.Role">
+		UPDATE security_role SET 
+			ROLE_ID=#{roleId,jdbcType=BIGINT},
+  			NAME=#{name,jdbcType=VARCHAR},
+  			DESCRIPTION=#{description,jdbcType=VARCHAR},
+  			ORDERING=#{ordering,jdbcType=BIGINT},
+  			INS_YMDHMS=#{insYmdhms,jdbcType=DATE},
+  			INS_ID=#{insId,jdbcType=BIGINT},
+  			UPD_EAC=#{updEac,jdbcType=BIGINT},
+  			UPD_YMDHMS=#{updYmdhms,jdbcType=DATE},
+  			UPD_ID=#{updId,jdbcType=BIGINT},
+  			DEL_FLAG=#{delFlag,jdbcType=CHAR}
+		 WHERE ROLE_ID=#{roleId,jdbcType=BIGINT}
+	</update>
+
+  	<!-- ================================== 子查询 ====================================== -->
+  	<select id="selectPermission" parameterType="java.lang.Long" resultMap="com.soft863.dolphin.mapper.PermissionMapper.BaseResultMap">
+		SELECT 
+			<include refid="com.soft863.dolphin.mapper.PermissionMapper.Base_Column_List" />
+		FROM security_permission
+		WHERE PER_ID IN (
+			SELECT PER_ID FROM security_role_permission WHERE ROLE_ID = #{roleId,jdbcType=BIGINT}
+		) 
+	</select>
+</mapper>

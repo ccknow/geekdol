@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.soft863.dolphin.mapper.OrganizationMapper">
+	<resultMap id="BaseResultMap" type="com.soft863.dolphin.model.Organization">
+		<id column="ORG_ID" property="orgId" />
+		<result column="PARENT_ID" property="parentId"/>
+		<result column="NAME" property="name"/>
+		<result column="DESCRIPTION" property="description" />
+		<result column="INS_YMDHMS" property="insYmdhms"/>
+		<result column="INS_ID" property="insId"/>
+		<result column="UPD_EAC" property="updEac"/>
+		<result column="UPD_YMDHMS" property="updYmdhms"/>
+		<result column="UPD_ID" property="updId"/>
+		<result column="DEL_FLAG" property="delFlag"/>
+		<association column="PARENT_ID" property="parent" select="selectParent" />
+		<association column="ORG_ID" property="useres" select="selectUseres" />
+	</resultMap>
+	<!-- 表字段列表 -->
+	<sql id="Base_Column_List" >
+		ORG_ID,PARENT_ID,NAME,DESCRIPTION,INS_YMDHMS,INS_ID,UPD_EAC,UPD_YMDHMS,UPD_ID,DEL_FLAG
+  	</sql>
+  	<!-- 检索条件 -->
+  	<sql id="searchWhere">
+	    <where>
+	    	<!-- 部门表的模糊查询条件 -->
+		    <if test="orgId!=null and orgId!=''">
+		        and ORG_ID = '${orgId}'
+		    </if>
+		    <if test="parentId!=null and parentId!=''">
+		        and PARENT_ID = '${parentId}'
+		    </if>
+		    <if test="name!=null and name!=''">
+		        and NAME like '${name}%'
+		    </if>
+	    </where>
+  	</sql>
+  	<select id="selectOrganizationById" parameterType="java.lang.Long" resultMap="BaseResultMap">
+		SELECT 
+			<include refid="Base_Column_List" />
+		FROM security_organization
+		WHERE ORG_ID = #{orgId}
+	</select>
+	
+	<select id="selectOrganizationList" parameterType="com.soft863.dolphin.model.Organization" resultMap="BaseResultMap">
+		SELECT 
+			<include refid="Base_Column_List" />
+		FROM security_organization
+		<include refid="searchWhere"/>
+		<if test="pageFlag==1">
+		    LIMIT #{lowNum}, #{highNum}
+		</if>
+	</select>
+	
+	<select id="selectCount" parameterType="com.soft863.dolphin.model.Organization" resultType="java.lang.Long">
+		SELECT 
+			count(*)
+		FROM security_organization
+		<include refid="searchWhere"/>
+	</select>
+	
+	<insert id="insert" parameterType="com.soft863.dolphin.model.Organization">
+  		INSERT INTO security_organization
+  		(
+  			ORG_ID,
+  			PARENT_ID,
+			NAME,
+			DESCRIPTION,
+			INS_YMDHMS, 
+			INS_ID,
+			UPD_EAC,
+			UPD_YMDHMS,
+			UPD_ID,
+			DEL_FLAG
+		)
+  		VALUES(
+  			#{orgId,jdbcType=BIGINT},
+  			#{parentId,jdbcType=BIGINT},
+  			#{name,jdbcType=VARCHAR},
+  			#{description,jdbcType=VARCHAR},
+  			#{insYmdhms,jdbcType=DATE},
+  			#{insId,jdbcType=BIGINT},
+  			#{updEac,jdbcType=BIGINT},
+  			#{updYmdhms,jdbcType=DATE},
+  			#{updId,jdbcType=BIGINT},
+  			#{delFlag,jdbcType=CHAR}
+  		)
+  	</insert>
+  	
+  	<select id="selectAll" resultMap="BaseResultMap">
+		SELECT 
+			<include refid="Base_Column_List" />
+		FROM security_organization
+	</select>
+	
+	<delete id="delete" parameterType="java.lang.Long">
+		DELETE FROM security_organization WHERE ORG_ID = #{orgId}
+	</delete>
+	
+	<update id="update" parameterType="com.soft863.dolphin.model.Organization">
+		UPDATE security_organization SET 
+			PARENT_ID=#{parentId,jdbcType=BIGINT},
+  			NAME=#{name,jdbcType=VARCHAR},
+  			DESCRIPTION=#{description,jdbcType=VARCHAR},
+  			INS_YMDHMS=#{insYmdhms,jdbcType=DATE},
+  			INS_ID=#{insId,jdbcType=BIGINT},
+  			UPD_EAC=#{updEac,jdbcType=BIGINT},
+  			UPD_YMDHMS=#{updYmdhms,jdbcType=DATE},
+  			UPD_ID=#{updId,jdbcType=BIGINT},
+  			DEL_FLAG=#{delFlag,jdbcType=CHAR}
+		 WHERE ORG_ID=#{orgId,jdbcType=BIGINT}
+	</update>
+	
+	<!-- ================================== 子查询 ====================================== -->
+	<select id="selectParent" parameterType="java.lang.Long" resultMap="BaseResultMap">
+		SELECT 
+	        <include refid="Base_Column_List" />
+	     FROM security_organization
+	    WHERE ORG_ID = #{parentId}
+	</select>
+	<select id="selectUseres" parameterType="java.lang.Long" resultMap="com.soft863.dolphin.mapper.UserMapper.BaseResultMap">
+		SELECT 
+	        <include refid="com.soft863.dolphin.mapper.UserMapper.Base_Column_List" />
+	     FROM security_user
+	    WHERE ORG_ID = #{orgId}
+	</select>
+
+</mapper>

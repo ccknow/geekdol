@@ -25,6 +25,7 @@
                 /static/** = anon
                 /login/repasswd = anon
                 /login/repasswd/reset = anon
+                /login/timeout = anon
                 /login = authc
                 /logout = logout
                 /geekstore/** = anon
@@ -53,7 +54,7 @@
 	
 	<bean id="captchaFormAuthenticationFilter" class="com.soft863.dolphin.shiro.CaptchaFormAuthenticationFilter"/>
 	<bean id="dWZUserFilter" class="com.soft863.dolphin.shiro.DWZUserFilter"/>
-	
+
 	<bean id="myShiroRealm" class="com.wooxun.geekdol.shiro.MyShiroRealm">
 		<property name="imageCaptchaService" ref="captchaService"/>
 		<!-- 是否使用验证码 -->

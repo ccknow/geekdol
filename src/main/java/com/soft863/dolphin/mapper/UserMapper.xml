@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.soft863.dolphin.mapper.UserMapper">
+	<resultMap id="BaseResultMap" type="com.soft863.dolphin.model.User">
+		<id column="USER_ID" property="userId" />
+		<result column="ORG_ID" property="orgId"/>
+		<result column="USERNAME" property="username"/>
+		<result column="REALNAME" property="realname"/>
+		<result column="PASSWORD" property="password"/>
+		<result column="PHONE" property="phone"/>
+		<result column="EMAIL" property="email"/>
+		<result column="INS_YMDHMS" property="insYmdhms"/>
+		<result column="INS_ID" property="insId"/>
+		<result column="UPD_EAC" property="updEac"/>
+		<result column="UPD_YMDHMS" property="updYmdhms"/>
+		<result column="UPD_ID" property="updId"/>
+		<result column="DEL_FLAG" property="delFlag"/>
+		<association column="ORG_ID" property="organization" select="selectOrganizationById" />
+		<association column="USER_ID" property="userRoles" select="selectRoles" />
+	</resultMap>
+	<!-- 表字段列表 -->
+	<sql id="Base_Column_List" >
+		User_ID,ORG_ID,USERNAME,REALNAME,PASSWORD,PHONE,EMAIL,INS_YMDHMS,INS_ID,UPD_EAC,UPD_YMDHMS,UPD_ID,DEL_FLAG
+  	</sql>
+  	<!-- 检索条件 -->
+  	<sql id="searchWhere">
+	    <where>
+	    	<!-- 部门表的模糊查询条件 -->
+		    <if test="userId!=null and userId!=''">
+		        and User_ID = '${userId}'
+		    </if>
+		    <if test="orgId!=null and orgId!=''">
+		        and ORG_ID = '${orgId}'
+		    </if>
+		    <if test="username!=null and username!=''">
+		        and USERNAME like '${username}%'
+		    </if>
+		    <if test="realname!=null and realname!=''">
+		        and REALNAME like '${realname}%'
+		    </if>
+	    </where>
+  	</sql>
+  	<select id="selectUserById" parameterType="java.lang.Long" resultMap="BaseResultMap">
+		SELECT 
+			<include refid="Base_Column_List" />
+		FROM security_user
+		WHERE USER_ID = #{userId}
+	</select>
+	<select id="selectByUserName" parameterType="java.lang.String" resultMap="BaseResultMap">
+		SELECT 
+			<include refid="Base_Column_List" />
+		FROM security_user
+		WHERE USERNAME = #{userName}
+	</select>
+	
+	<select id="selectUserList" parameterType="com.soft863.dolphin.model.User" resultMap="BaseResultMap">
+		SELECT 
+			<include refid="Base_Column_List" />
+		FROM security_user
+		<include refid="searchWhere"/>
+		<if test="pageFlag==1">
+		    LIMIT #{lowNum}, #{highNum}
+		</if>
+	</select>
+	
+	<select id="selectCount" parameterType="com.soft863.dolphin.model.User" resultType="java.lang.Long">
+		SELECT 
+			count(*)
+		FROM security_user
+		<include refid="searchWhere"/>
+	</select>
+	
+	<insert id="insert" parameterType="com.soft863.dolphin.model.User">
+  		INSERT INTO security_user
+  		(
+  			USER_ID,
+  			ORG_ID,
+			USERNAME,
+			REALNAME,
+			PASSWORD,
+			PHONE,
+			EMAIL,
+			INS_YMDHMS,
+			INS_ID,
+			UPD_EAC,
+			UPD_YMDHMS,
+			UPD_ID,
+			DEL_FLAG
+		)
+  		VALUES(
+  			#{userId,jdbcType=BIGINT},
+  			#{organization.orgId,jdbcType=BIGINT},
+  			#{username,jdbcType=VARCHAR},
+  			#{realname,jdbcType=VARCHAR},
+  			#{password,jdbcType=VARCHAR},
+  			#{phone,jdbcType=VARCHAR},
+  			#{email,jdbcType=VARCHAR},
+  			#{insYmdhms,jdbcType=DATE},
+  			#{insId,jdbcType=BIGINT},
+  			#{updEac,jdbcType=BIGINT},
+  			#{updYmdhms,jdbcType=DATE},
+  			#{updId,jdbcType=BIGINT},
+  			#{delFlag,jdbcType=CHAR}
+  		)
+  	</insert>
+  	
+    <update id="update" parameterType="com.soft863.dolphin.model.User">
+		UPDATE security_user SET 
+  			ORG_ID=#{orgId,jdbcType=BIGINT},
+  			USERNAME=#{username,jdbcType=VARCHAR},
+  			REALNAME=#{realname,jdbcType=VARCHAR},
+  			PASSWORD=#{password,jdbcType=VARCHAR},
+  			PHONE=#{phone,jdbcType=VARCHAR},
+  			EMAIL=#{email,jdbcType=VARCHAR},
+  			INS_YMDHMS=#{insYmdhms,jdbcType=DATE},
+  			INS_ID=#{insId,jdbcType=BIGINT},
+  			UPD_EAC=#{updEac,jdbcType=BIGINT},
+  			UPD_YMDHMS=#{updYmdhms,jdbcType=DATE},
+  			UPD_ID=#{updId,jdbcType=BIGINT},
+  			DEL_FLAG=#{delFlag,jdbcType=CHAR}
+		 WHERE USER_ID=#{userId,jdbcType=BIGINT}
+	</update>
+	
+	<delete id="delete" parameterType="java.lang.Long">
+		DELETE FROM security_user WHERE USER_ID = #{userId}
+	</delete>
+  	
+  	<!-- ================================== 子查询 ====================================== -->
+  	<select id="selectOrganizationById" parameterType="java.lang.Long" resultMap="com.soft863.dolphin.mapper.OrganizationMapper.BaseResultMap">
+		SELECT 
+			<include refid="com.soft863.dolphin.mapper.OrganizationMapper.Base_Column_List" />
+		FROM security_organization
+		WHERE ORG_ID = #{orgId,jdbcType=BIGINT}
+	</select>
+	
+  	<select id="selectRoles" parameterType="java.lang.Long" resultMap="com.soft863.dolphin.mapper.RoleMapper.BaseResultMap">
+		SELECT 
+			<include refid="com.soft863.dolphin.mapper.RoleMapper.Base_Column_List" />
+		FROM security_role
+		WHERE ROLE_ID IN (
+			SELECT ROLE_ID FROM security_user_role WHERE USER_ID = #{userId,jdbcType=BIGINT}
+		) 
+	</select>
+
+</mapper>
