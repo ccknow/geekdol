@@ -115,11 +115,11 @@
 			<artifactId>commons-chain</artifactId>
 			<version>1.2</version>
 		</dependency>
-		<dependency>
+		<!-- <dependency>
 			<groupId>commons-dbcp</groupId>
 			<artifactId>commons-dbcp</artifactId>
 			<version>1.2</version>
-		</dependency>
+		</dependency> -->
 		<dependency>
 			<groupId>commons-digester</groupId>
 			<artifactId>commons-digester</artifactId>
@@ -345,10 +345,18 @@
 			<groupId>com.octo.captcha</groupId>
 			<artifactId>jcaptcha-all</artifactId>
 			<version>1.0-rc6</version>
+			<exclusions>
+				<exclusion>
+					<groupId>org.springframework</groupId>
+					<artifactId>spring</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>commons-dbcp</groupId>
+					<artifactId>commons-dbcp</artifactId>
+				</exclusion>
+			</exclusions>
 		</dependency>
-		
-		
-		
+
 		
 
 	</dependencies>

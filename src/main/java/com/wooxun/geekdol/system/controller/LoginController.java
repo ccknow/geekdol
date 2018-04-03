@@ -19,7 +19,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
-
 import com.soft863.dolphin.shiro.IncorrectCaptchaException;
 import com.soft863.dolphin.util.AjaxObject;
 import com.wooxun.geekdol.system.model.User;
@@ -41,8 +40,8 @@ public class LoginController {
 	private static final String LOGINOUT = "login";
 	
 	@Autowired
-	private UserService<User> userService;
-	
+	private UserService<User> userServic;
+
 	@RequestMapping(method = RequestMethod.GET)
 	public String login(Map<String,Object> map, HttpServletRequest request) {
 		

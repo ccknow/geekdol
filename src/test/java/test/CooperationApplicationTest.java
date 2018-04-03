@@ -1,8 +1,7 @@
 package test;
-
 import java.math.BigDecimal;
+import java.nio.charset.Charset;
 
-import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 import com.wooxun.geekdol.geekstore.model.CooperationApplication;
@@ -23,12 +22,18 @@ import com.wooxun.geekdol.geekstore.service.CooperationApplicationService;
  *==========================================================
  * 
  */
+@SuppressWarnings("all")
 public class CooperationApplicationTest {
 
 	public static void main(String[] args) {
+		t2();
+	}
+
+	
+	public static void t1(){
 		String file[] = {"spring.xml","spring-mybatis.xml"};
-		ApplicationContext context = new ClassPathXmlApplicationContext(file);
-		CooperationApplicationService service = (CooperationApplicationService) context.getBean("cooperationApplicationServiceImpl");
+		ClassPathXmlApplicationContext context = new ClassPathXmlApplicationContext(file);
+		CooperationApplicationService<CooperationApplication> service = (CooperationApplicationService<CooperationApplication>) context.getBean("cooperationApplicationServiceImpl");
 		CooperationApplication bean = new CooperationApplication();
 		bean.setVillageId((long) 1);
 		bean.setApplicationName("admin1");
@@ -39,6 +44,12 @@ public class CooperationApplicationTest {
 		bean.setSize(new BigDecimal(12.56));
 		bean.setDelFlag("0");
 		service.insertCooperationApplication(bean);
+		
+		context.close();
 	}
-
+	
+	public static void t2(){
+		Charset c = Charset.forName("UTF-8");
+		System.out.println(c);
+	}
 }
